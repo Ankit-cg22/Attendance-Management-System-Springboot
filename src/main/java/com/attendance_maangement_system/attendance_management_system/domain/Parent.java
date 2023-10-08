@@ -1,23 +1,10 @@
 package com.attendance_maangement_system.attendance_management_system.domain;
 
-public class Parent {
+public class Parent extends User {
     private int parentId, childId;
-    private String firstName, lastName, email;
-
-    public Parent(int parentId, int childId, String firstName, String lastName, String email) {
-        this.parentId = parentId;
-        this.childId = childId;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.email = email;
-    }
 
     public int getParentId() {
         return parentId;
-    }
-
-    public void setParentId(int parentId) {
-        this.parentId = parentId;
     }
 
     public int getChildId() {
@@ -28,28 +15,30 @@ public class Parent {
         this.childId = childId;
     }
 
-    public String getFirstName() {
-        return firstName;
+    public Parent(Integer userId, String firstName, String lastName, String email, String password, String role,
+            int parentId, int childId) {
+        super(userId, firstName, lastName, email, password, role);
+        this.parentId = parentId;
+        this.childId = childId;
     }
 
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
+    public Parent(Integer userId, String firstName, String lastName, String email, String role,
+            int parentId, int childId) {
+        super(userId, firstName, lastName, email, role);
+        this.parentId = parentId;
+        this.childId = childId;
     }
 
-    public String getLastName() {
-        return lastName;
+    public Parent(int parentId) {
+        this.parentId = parentId;
     }
 
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
+    public int getStudentId() {
+        return parentId;
     }
 
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
+    public void setParentId(int parentId) {
+        this.parentId = parentId;
     }
 
 }

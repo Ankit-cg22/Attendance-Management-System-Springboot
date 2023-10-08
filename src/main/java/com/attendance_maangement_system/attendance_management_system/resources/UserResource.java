@@ -4,12 +4,15 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.attendance_maangement_system.attendance_management_system.Constants;
@@ -49,14 +52,14 @@ public class UserResource {
         Map<String, Object> returnObject = new HashMap<>();
 
         if (role.equals("student")) {
-            Student newStudent = studentService.addStudent(user.getUserId(), firstName, lastName, email);
-            returnObject.put("student", newStudent);
+            Student newStudent = studentService.addStudent(user.getUserId());
+            returnObject.put("studentId", newStudent.getStudentId());
             returnObject.put("token", generateJWTToken(user, (Student) returnObject.get("student")));
         } else if (role.equals("parent")) {
             System.out.println(childId);
             System.out.println(user.getUserId());
-            Parent newParent = parentService.addParent(user.getUserId(), childId, firstName, lastName, email);
-            returnObject.put("parent", newParent);
+            Parent newParent = parentService.addParent(user.getUserId(), childId);
+            returnObject.put("parentId", newParent.getParentId());
             returnObject.put("childId", newParent.getChildId());
             returnObject.put("token", generateJWTToken(user, (Parent) returnObject.get("parent")));
         }
@@ -101,6 +104,34 @@ public class UserResource {
             returnObject.put("childId", ((Parent) obj).getChildId());
         }
         returnObject.put("token", generateJWTToken(user, obj));
+        return new ResponseEntity<>(returnObject, HttpStatus.OK);
+    }
+
+    @PostMapping("/update/{userId}")
+    public ResponseEntity<Map<String, Object>> updateUser(@PathVariable("userId") Integer userId,
+            @RequestBody Map<String, Object> map) {
+        Map<String, Object> returnObject = new HashMap<>();
+        String token = (String) map.get("token");
+        Map<String, Object> tokenMap = Constants.validateToken(token);
+        if (tokenMap.get("valid") == (Boolean) false) {
+            returnObject.put("error", "invalid token");
+            return new ResponseEntity<>(returnObject, HttpStatus.BAD_REQUEST);
+        } else if (tokenMap.get("userId") != userId) {
+            returnObject.put("error", "unauthorized access");
+            return new ResponseEntity<>(returnObject, HttpStatus.BAD_REQUEST);
+        }
+        String firstName = (String) map.get("firstName");
+        String lastName = (String) map.get("lastName");
+        String email = (String) map.get("email");
+        String password = (String) map.get("password");
+        String role = (String) tokenMap.get("role");
+
+        User user = new User(userId, firstName, lastName, email, password, role);
+        User updatedUser = userService.updateUser(userId, user);
+
+        returnObject.put("success", true);
+        returnObject.put("user", updatedUser);
+
         return new ResponseEntity<>(returnObject, HttpStatus.OK);
     }
 

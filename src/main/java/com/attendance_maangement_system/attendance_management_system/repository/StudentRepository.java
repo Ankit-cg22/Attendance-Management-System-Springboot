@@ -11,11 +11,11 @@ public interface StudentRepository {
 
     Student findById(Integer studentId) throws ResourceNotFoundException;
 
-    Integer create(Integer userId, String firstName, String lastName, String email) throws InvalidRequestException;
+    Integer create(Integer userId) throws InvalidRequestException;
 
     void removeById(Integer studentId) throws InvalidRequestException;
 
-    void update(Integer studentId, Student student) throws InvalidRequestException;
+    // void update(Integer studentId) throws InvalidRequestException;
 
     List<Integer> findEnrolledCourses(Integer studentId) throws ResourceNotFoundException;
 

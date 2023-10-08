@@ -5,7 +5,7 @@ import com.attendance_maangement_system.attendance_management_system.exceptions.
 import com.attendance_maangement_system.attendance_management_system.exceptions.ResourceNotFoundException;
 
 public interface ParentRepository {
-    Integer create(Integer userId, Integer childId, String firstName, String lastName, String email)
+    Integer create(Integer userId, Integer childId)
             throws InvalidRequestException;
 
     Parent findById(Integer parentId) throws ResourceNotFoundException;

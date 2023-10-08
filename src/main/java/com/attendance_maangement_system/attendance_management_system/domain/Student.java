@@ -1,14 +1,22 @@
 package com.attendance_maangement_system.attendance_management_system.domain;
 
-public class Student {
+public class Student extends User {
     private int studentId;
-    private String firstName, lastName, email;
 
-    public Student(int studentId, String firstName, String lastName, String email) {
+    public Student(Integer userId, String firstName, String lastName, String email, String password, String role,
+            int studentId) {
+        super(userId, firstName, lastName, email, password, role);
         this.studentId = studentId;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.email = email;
+    }
+
+    public Student(Integer userId, String firstName, String lastName, String email, String role,
+            int studentId) {
+        super(userId, firstName, lastName, email, role);
+        this.studentId = studentId;
+    }
+
+    public Student(int studentId) {
+        this.studentId = studentId;
     }
 
     public int getStudentId() {
@@ -17,30 +25,6 @@ public class Student {
 
     public void setStudentId(int studentId) {
         this.studentId = studentId;
-    }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
     }
 
 }

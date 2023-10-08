@@ -13,9 +13,11 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
+import org.springframework.web.client.ResourceAccessException;
 
 import com.attendance_maangement_system.attendance_management_system.domain.User;
 import com.attendance_maangement_system.attendance_management_system.exceptions.AuthException;
+import com.attendance_maangement_system.attendance_management_system.exceptions.ResourceNotFoundException;
 
 @Repository
 public class UserRepositoryImpl implements UserRepository {
@@ -31,6 +33,8 @@ public class UserRepositoryImpl implements UserRepository {
     private static final String SQL_FIND_BY_ID = "SELECT USERID , FIRSTNAME , LASTNAME , EMAIL , PASSWORD , ROLE " +
             "FROM USER " +
             "WHERE USERID =?";
+
+    private static final String SQL_UPDATE = "UPDATE USER SET FIRSTNAME=? , LASTNAME=? , EMAIL=? , PASSWORD =? WHERE USERID=?;";
 
     @Override
     public Integer create(String firstName, String lastName, String email, String password, String role)
@@ -74,6 +78,17 @@ public class UserRepositoryImpl implements UserRepository {
 
         } catch (EmptyResultDataAccessException e) {
             throw new AuthException("Invalid email/password.");
+        }
+    }
+
+    @Override
+    public void updateUser(Integer userId, User user) {
+        try {
+            String hashedPassword = BCrypt.hashpw(user.getPassword(), BCrypt.gensalt(10));
+            jdbcTemplate.update(SQL_UPDATE, new Object[] { user.getFirstName(), user.getLastName(), user.getEmail(),
+                    hashedPassword, userId });
+        } catch (Exception e) {
+            throw new ResourceNotFoundException("User does not exist.");
         }
     }
 

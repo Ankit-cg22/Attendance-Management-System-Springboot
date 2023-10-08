@@ -11,11 +11,12 @@ public interface StudentService {
 
     Student fetchStudentById(Integer studentId) throws ResourceNotFoundException;
 
-    Student addStudent(Integer userId, String firstName, String lastName, String email) throws InvalidRequestException;
+    Student addStudent(Integer userId) throws InvalidRequestException;
 
     void removeStudentById(Integer studentId) throws InvalidRequestException;
 
-    void updateStudent(Integer studentId, Student student) throws ResourceNotFoundException;
+    // void updateStudent(Integer studentId, Student student) throws
+    // ResourceNotFoundException;
 
     List<Integer> fetchEnrolledCourses(Integer studentId) throws ResourceNotFoundException;
 

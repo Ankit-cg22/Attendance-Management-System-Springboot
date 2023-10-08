@@ -10,20 +10,14 @@ create table user(
 create table parent(
 	parentid int primary key auto_increment ,
 	childid int , 
-	userid int ,
-	firstname varchar(255) not null , 
-	lastname varchar(255) ,
-	email varchar(50) not null unique,
+	userid int unique,
 	foreign key (childid) references student(studentid) on delete set null ,
 	foreign key (userid) references user(userid) on delete cascade 
 );
 
 create table student(
 	studentId int primary key auto_increment ,
-	userid int ,
-	firstname varchar(255) not null ,
-	lastname varchar(255) , 
-	email varchar(255) unique ,
+	userid int unique ,
 	foreign key (userid) references user(userid) on delete cascade
 );
 

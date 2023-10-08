@@ -20,14 +20,14 @@ public class ParentRepositoryImpl implements ParentRepository {
     @Autowired
     JdbcTemplate jdbcTemplate;
 
-    private static final String SQL_CREATE = "INSERT INTO PARENT(USERID ,CHILDID , FIRSTNAME, LASTNAME , EMAIL) VALUES(? ,? ,? , ? , ?);";
+    private static final String SQL_CREATE = "INSERT INTO PARENT(USERID , CHILDID) VALUES(? , ?);";
 
-    private static final String SQL_FIND_BY_ID = "SELECT CHILDID , PARENTID , FIRSTNAME , LASTNAME , EMAIL FROM PARENT WHERE PARENTID=?;";
+    private static final String SQL_FIND_BY_ID = "SELECT USERID , PARENTID , FIRSTNAME , LASTNAME , EMAIL , ROLE , CHILDID FROM PARENT P JOIN USER U USING (USERID) WHERE PARENTID=?;";
 
     private static final String SQL_FETCH_PARENTID_FOR_USERID = "SELECT PARENTID FROM PARENT WHERE USERID = ?;";
 
     @Override
-    public Integer create(Integer userId, Integer childId, String firstName, String lastName, String email)
+    public Integer create(Integer userId, Integer childId)
             throws InvalidRequestException {
         try {
             KeyHolder keyHolder = new GeneratedKeyHolder();
@@ -35,9 +35,6 @@ public class ParentRepositoryImpl implements ParentRepository {
                 PreparedStatement ps = connection.prepareStatement(SQL_CREATE, Statement.RETURN_GENERATED_KEYS);
                 ps.setInt(1, userId);
                 ps.setInt(2, childId);
-                ps.setString(3, firstName);
-                ps.setString(4, lastName);
-                ps.setString(5, email);
                 return ps;
             }, keyHolder);
             Number generatedKey = keyHolder.getKey();
@@ -75,11 +72,13 @@ public class ParentRepositoryImpl implements ParentRepository {
     }
 
     private RowMapper<Parent> parentRowMapper = ((rs, rowNum) -> {
-        return new Parent(rs.getInt("PARENTID"),
-                rs.getInt("CHILDID"),
+        return new Parent(rs.getInt("USERID"),
                 rs.getString("FIRSTNAME"),
                 rs.getString("LASTNAME"),
-                rs.getString("EMAIL"));
+                rs.getString("EMAIL"),
+                rs.getString("ROLE"),
+                rs.getInt("PARENTID"),
+                rs.getInt("CHILDID"));
     });
     private RowMapper<Integer> parentIdRowMapper = ((rs, rowNum) -> {
         return rs.getInt("PARENTID");

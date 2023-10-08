@@ -19,19 +19,20 @@ import com.attendance_maangement_system.attendance_management_system.exceptions.
 public class StudentRepositoryImpl implements StudentRepository {
 
     // Fetch all students
-    private static final String SQL_FIND_ALL = "SELECT STUDENTID ,FIRSTNAME ,LASTNAME ,EMAIL FROM STUDENT; ";
+    private static final String SQL_FIND_ALL = " SELECT STUDENTID , S.USERID , FIRSTNAME , LASTNAME , EMAIL , ROLE FROM STUDENT S JOIN USER U WHERE S.USERID=U.USERID;";
 
     // Add a student
-    private static final String SQL_CREATE = "INSERT INTO STUDENT(USERID ,FIRSTNAME, LASTNAME , EMAIL) VALUES(? ,? , ? , ?);";
+    private static final String SQL_CREATE = "INSERT INTO STUDENT(USERID ) VALUES(?);";
 
     // Find by studentId
-    private static final String SQL_FIND_BY_ID = "SELECT STUDENTID , FIRSTNAME , LASTNAME , EMAIL FROM STUDENT WHERE STUDENTID=?;";
+    private static final String SQL_FIND_BY_ID = " SELECT STUDENTID , S.USERID , FIRSTNAME , LASTNAME , EMAIL , ROLE FROM STUDENT S JOIN USER U WHERE S.USERID=U.USERID AND STUDENTID = ?;";
 
     // Delete by studentId
     private static final String SQL_DELETE = "DELETE FROM STUDENT WHERE STUDENTID = ?";
 
     // Update by studentId
-    private static final String SQL_UPDATE = "UPDATE STUDENT SET FIRSTNAME=?, LASTNAME = ? , EMAIL = ? WHERE STUDENTID = ?";
+    // private static final String SQL_UPDATE = "UPDATE STUDENT SET FIRSTNAME=?,
+    // LASTNAME = ? , EMAIL = ? WHERE STUDENTID = ?";
 
     // fetch enrolled courses
     private static final String SQL_FETCH_ENROLLED_COURSES = "SELECT DISTINCT COURSEID FROM ENROLLMENT WHERE STUDENTID = ?;";
@@ -60,16 +61,13 @@ public class StudentRepositoryImpl implements StudentRepository {
     }
 
     @Override
-    public Integer create(Integer userId, String firstName, String lastName, String email)
+    public Integer create(Integer userId)
             throws InvalidRequestException {
         try {
             KeyHolder keyHolder = new GeneratedKeyHolder();
             jdbcTemplate.update(connection -> {
                 PreparedStatement ps = connection.prepareStatement(SQL_CREATE, Statement.RETURN_GENERATED_KEYS);
                 ps.setInt(1, userId);
-                ps.setString(2, firstName);
-                ps.setString(3, lastName);
-                ps.setString(4, email);
                 return ps;
             }, keyHolder);
             Number generatedKey = keyHolder.getKey();
@@ -78,21 +76,7 @@ public class StudentRepositoryImpl implements StudentRepository {
             else
                 return 0;
         } catch (Exception e) {
-            System.out.println(e.getMessage());
-            if (e.getMessage().contains("Duplicate"))
-                throw new InvalidRequestException("Email already registered.");
-            else
-                throw new InvalidRequestException("Invalid request");
-        }
-    }
-
-    @Override
-    public void update(Integer studentId, Student student) throws InvalidRequestException {
-        try {
-            jdbcTemplate.update(SQL_UPDATE,
-                    new Object[] { student.getFirstName(), student.getLastName(), student.getEmail(), studentId });
-        } catch (Exception e) {
-            throw new ResourceNotFoundException("Invalid request.");
+            throw new InvalidRequestException("Invalid request");
         }
     }
 
@@ -125,10 +109,13 @@ public class StudentRepositoryImpl implements StudentRepository {
     }
 
     private RowMapper<Student> studentRowMapper = ((rs, rowNum) -> {
-        return new Student(rs.getInt("STUDENTID"),
+        return new Student(
+                rs.getInt("USERID"),
                 rs.getString("FIRSTNAME"),
                 rs.getString("LASTNAME"),
-                rs.getString("EMAIL"));
+                rs.getString("EMAIL"),
+                rs.getString("ROLE"),
+                rs.getInt("STUDENTID"));
     });
 
     private RowMapper<Integer> integerRowMapper = ((rs, rowNum) -> {

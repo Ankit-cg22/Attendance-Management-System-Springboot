@@ -7,7 +7,7 @@ import com.attendance_maangement_system.attendance_management_system.exceptions.
 public interface ParentService {
     Parent fetchParentById(Integer parentId) throws ResourceNotFoundException;
 
-    Parent addParent(Integer userId, Integer childId, String firstName, String lastName, String email)
+    Parent addParent(Integer userId, Integer childId)
             throws InvalidRequestException;
 
     Integer getParentIdFromUserId(Integer userId) throws ResourceNotFoundException;

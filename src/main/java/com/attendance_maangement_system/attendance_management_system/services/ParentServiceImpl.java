@@ -23,10 +23,10 @@ public class ParentServiceImpl implements ParentService {
     }
 
     @Override
-    public Parent addParent(Integer userId, Integer childId, String firstName, String lastName, String email)
+    public Parent addParent(Integer userId, Integer childId)
             throws InvalidRequestException {
         try {
-            int parentId = parentRepository.create(userId, childId, firstName, lastName, email);
+            int parentId = parentRepository.create(userId, childId);
             return parentRepository.findById(parentId);
         } catch (Exception e) {
             throw e;

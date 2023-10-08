@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.attendance_maangement_system.attendance_management_system.domain.User;
 import com.attendance_maangement_system.attendance_management_system.exceptions.AuthException;
+import com.attendance_maangement_system.attendance_management_system.exceptions.ResourceNotFoundException;
 import com.attendance_maangement_system.attendance_management_system.repository.UserRepository;
 
 @Service
@@ -44,6 +45,16 @@ public class UserServiceImpl implements UserService {
         if (email != null)
             email = email.toLowerCase();
         return userRepository.findByEmailAndPassword(email, password);
+    }
+
+    @Override
+    public User updateUser(Integer userId, User user) throws ResourceNotFoundException {
+        try {
+            userRepository.updateUser(userId, user);
+            return userRepository.findByUserId(userId);
+        } catch (Exception e) {
+            throw e;
+        }
     }
 
 }

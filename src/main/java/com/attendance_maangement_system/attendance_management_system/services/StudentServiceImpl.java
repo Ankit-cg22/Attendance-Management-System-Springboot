@@ -36,10 +36,10 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
-    public Student addStudent(Integer userId, String firstName, String lastName, String email)
+    public Student addStudent(Integer userId)
             throws InvalidRequestException {
         try {
-            int studentId = studentRepository.create(userId, firstName, lastName, email);
+            int studentId = studentRepository.create(userId);
             return studentRepository.findById(studentId);
         } catch (Exception e) {
             throw e;
@@ -55,14 +55,15 @@ public class StudentServiceImpl implements StudentService {
         }
     }
 
-    @Override
-    public void updateStudent(Integer studentId, Student student) throws ResourceNotFoundException {
-        try {
-            studentRepository.update(studentId, student);
-        } catch (Exception e) {
-            throw e;
-        }
-    }
+    // @Override
+    // public void updateStudent(Integer studentId, Student student) throws
+    // ResourceNotFoundException {
+    // try {
+    // studentRepository.update(studentId, student);
+    // } catch (Exception e) {
+    // throw e;
+    // }
+    // }
 
     @Override
     public List<Integer> fetchEnrolledCourses(Integer studentId) throws ResourceNotFoundException {
@@ -73,12 +74,11 @@ public class StudentServiceImpl implements StudentService {
         }
     }
 
-    @Override 
-    public Integer getStudentIdFromUserId(Integer userId) throws ResourceNotFoundException{
-        try{
-            return studentRepository.getStudentIdFromUserId(userId) ;
-        }
-        catch(Exception e){
+    @Override
+    public Integer getStudentIdFromUserId(Integer userId) throws ResourceNotFoundException {
+        try {
+            return studentRepository.getStudentIdFromUserId(userId);
+        } catch (Exception e) {
             throw e;
         }
     }

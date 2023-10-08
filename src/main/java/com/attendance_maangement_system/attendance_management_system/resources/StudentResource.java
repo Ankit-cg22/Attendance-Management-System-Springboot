@@ -115,36 +115,38 @@ public class StudentResource {
         }
     }
 
-    @PostMapping("/{studentId}")
-    public ResponseEntity<Map<String, Object>> updateStudent(HttpServletRequest request,
-            @PathVariable("studentId") Integer studentId, @RequestBody Map<String, Object> map) {
+    // @PostMapping("/{studentId}")
+    // public ResponseEntity<Map<String, Object>> updateStudent(HttpServletRequest
+    // request,
+    // @PathVariable("studentId") Integer studentId, @RequestBody Map<String,
+    // Object> map) {
 
-        Map<String, Object> returnObject = new HashMap<>();
-        String token = (String) map.get("token");
-        Map<String, Object> tokenMap = Constants.validateToken(token);
+    // Map<String, Object> returnObject = new HashMap<>();
+    // String token = (String) map.get("token");
+    // Map<String, Object> tokenMap = Constants.validateToken(token);
 
-        if (tokenMap.get("valid") == (Boolean) false) {
-            returnObject.put("error", "invalid token");
-            return new ResponseEntity<Map<String, Object>>(returnObject,
-                    HttpStatus.BAD_REQUEST);
-        } else if ((Integer) tokenMap.get("studentId") != studentId) {
-            returnObject.put("error", "unauthorized access");
-            return new ResponseEntity<Map<String, Object>>(returnObject,
-                    HttpStatus.BAD_REQUEST);
-        }
-        try {
-            Student student = new Student(studentId, (String) map.get("firstName"),
-                    (String) map.get("lastName"),
-                    (String) map.get("email"));
-            studentService.updateStudent(studentId, student);
-            returnObject.put("success", true);
-            return new ResponseEntity<>(returnObject, HttpStatus.OK);
-        } catch (Exception e) {
-            String errorMessage = e.getMessage();
-            returnObject.put("error", errorMessage);
-            return new ResponseEntity<>(returnObject, HttpStatus.BAD_REQUEST);
-        }
-    }
+    // if (tokenMap.get("valid") == (Boolean) false) {
+    // returnObject.put("error", "invalid token");
+    // return new ResponseEntity<Map<String, Object>>(returnObject,
+    // HttpStatus.BAD_REQUEST);
+    // } else if ((Integer) tokenMap.get("studentId") != studentId) {
+    // returnObject.put("error", "unauthorized access");
+    // return new ResponseEntity<Map<String, Object>>(returnObject,
+    // HttpStatus.BAD_REQUEST);
+    // }
+    // try {
+    // Student student = new Student(studentId, (String) map.get("firstName"),
+    // (String) map.get("lastName"),
+    // (String) map.get("email"));
+    // studentService.updateStudent(studentId, student);
+    // returnObject.put("success", true);
+    // return new ResponseEntity<>(returnObject, HttpStatus.OK);
+    // } catch (Exception e) {
+    // String errorMessage = e.getMessage();
+    // returnObject.put("error", errorMessage);
+    // return new ResponseEntity<>(returnObject, HttpStatus.BAD_REQUEST);
+    // }
+    // }
 
     @GetMapping("/enrolledCourses/{studentId}")
     public ResponseEntity<Map<String, Object>> getEnrolledCourses(HttpServletRequest request,

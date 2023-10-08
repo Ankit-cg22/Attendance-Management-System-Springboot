@@ -1,8 +1,8 @@
 package com.attendance_maangement_system.attendance_management_system.domain;
 
 public class User {
-    private Integer userId;
-    private String firstName, lastName, email, password, role;
+    Integer userId;
+    String firstName, lastName, email, password, role;
 
     public User() {
 
@@ -14,6 +14,14 @@ public class User {
         this.lastName = lastName;
         this.email = email;
         this.password = password;
+        this.role = role;
+    }
+
+    public User(Integer userId, String firstName, String lastName, String email, String role) {
+        this.userId = userId;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
         this.role = role;
     }
 
