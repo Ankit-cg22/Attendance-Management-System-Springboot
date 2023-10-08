@@ -83,13 +83,7 @@ public class UserResource {
         // using the received data we check if provided data represents a valid user
         User user = userService.validateUser(email, password);
         Map<String, Object> returnObject = new HashMap<>();
-        Map<String, Object> user1 = new HashMap<>();
-        user1.put("userId", user.getUserId());
-        user1.put("firstName", user.getFirstName());
-        user1.put("lastName", user.getLastName());
-        user1.put("email", user.getEmail());
-        user1.put("role", user.getRole());
-        returnObject.put("user", user1);
+        returnObject.put("user", user);
         Object obj = null;
 
         if (user.getRole().equals("student")) {
@@ -135,6 +129,8 @@ public class UserResource {
         return new ResponseEntity<>(returnObject, HttpStatus.OK);
     }
 
+    // @GetMapping("/adminRequests")
+
     private String generateJWTToken(User user, Object obj) {
         long timestamp = System.currentTimeMillis();
         // we use current time to set the expirty of the token
@@ -160,7 +156,6 @@ public class UserResource {
                 .claim("role", user.getRole())
                 .claim(key, val)
                 .compact();
-
         return token;
     }
 

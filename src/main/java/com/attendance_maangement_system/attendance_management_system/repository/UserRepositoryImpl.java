@@ -13,7 +13,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
-import org.springframework.web.client.ResourceAccessException;
 
 import com.attendance_maangement_system.attendance_management_system.domain.User;
 import com.attendance_maangement_system.attendance_management_system.exceptions.AuthException;
@@ -65,7 +64,8 @@ public class UserRepositoryImpl implements UserRepository {
     @Override
     public User findByEmailAndPassword(String email, String password) throws AuthException {
         try {
-            User user = jdbcTemplate.queryForObject(SQL_FIND_BY_EMAIL, userRowMapper, new Object[] { email });
+            User user = jdbcTemplate.queryForObject(SQL_FIND_BY_EMAIL, userRowMapperWithPassword,
+                    new Object[] { email });
 
             // we got the user , now compare the passwords
             if (!BCrypt.checkpw(password, user.getPassword())) {
@@ -98,6 +98,14 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     private RowMapper<User> userRowMapper = ((rs, rowNum) -> {
+        return new User(
+                rs.getInt("USERID"),
+                rs.getString("FIRSTNAME"),
+                rs.getString("LASTNAME"),
+                rs.getString("EMAIL"),
+                rs.getString("ROLE"));
+    });
+    private RowMapper<User> userRowMapperWithPassword = ((rs, rowNum) -> {
         return new User(
                 rs.getInt("USERID"),
                 rs.getString("FIRSTNAME"),

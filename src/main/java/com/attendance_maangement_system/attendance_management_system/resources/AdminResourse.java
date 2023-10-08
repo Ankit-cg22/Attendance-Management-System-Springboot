@@ -2,6 +2,7 @@ package com.attendance_maangement_system.attendance_management_system.resources;
 
 import java.util.Base64;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.crypto.spec.SecretKeySpec;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.attendance_maangement_system.attendance_management_system.Constants;
+import com.attendance_maangement_system.attendance_management_system.domain.User;
 import com.attendance_maangement_system.attendance_management_system.services.AdminService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -47,6 +49,26 @@ public class AdminResourse {
             returnObject.put("error", "unauthorized access");
         }
 
+        return new ResponseEntity<Map<String, Object>>(returnObject, HttpStatus.OK);
+    }
+
+    @GetMapping("/adminRequests")
+    public ResponseEntity<Map<String, Object>> fetchAdminRequests(@RequestBody Map<String, Object> map) {
+        String token = (String) map.get("token");
+        Map<String, Object> tokenMap = Constants.validateToken(token);
+        Map<String, Object> returnObject = new HashMap<>();
+
+        if (tokenMap.get("valid") == (Boolean) false) {
+            returnObject.put("error", "invalid token");
+            return new ResponseEntity<Map<String, Object>>(returnObject, HttpStatus.BAD_REQUEST);
+
+        } else if (!tokenMap.get("role").equals("admin")) {
+            returnObject.put("error", "unauthorized access");
+            return new ResponseEntity<Map<String, Object>>(returnObject, HttpStatus.BAD_REQUEST);
+
+        }
+        List<User> userList = adminService.fetchAdminRequests();
+        returnObject.put("adminRequests", userList);
         return new ResponseEntity<Map<String, Object>>(returnObject, HttpStatus.OK);
     }
 
