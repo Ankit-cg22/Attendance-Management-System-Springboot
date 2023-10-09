@@ -13,7 +13,7 @@ public interface AttendanceRepository {
 
     Integer create(Integer studentId, Integer courseId, Date date) throws InvalidRequestException;
 
-    List<Map<String, Integer>> fetchReportForStudentId(Integer studentId) throws ResourceNotFoundException;
+    List<Map<String, Object>> fetchReportForStudentId(Integer studentId) throws ResourceNotFoundException;
 
     List<Date> fetchDatesForStudentIdCourseId(Integer studentId, Integer courseId) throws ResourceNotFoundException;
 }

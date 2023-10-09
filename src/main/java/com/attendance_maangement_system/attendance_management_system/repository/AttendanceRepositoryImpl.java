@@ -23,9 +23,11 @@ public class AttendanceRepositoryImpl implements AttendanceRepository {
 
     private final static String SQL_FIND_BY_ID = "SELECT ATTENDANCEID , STUDENTID , COURSEID , DATE FROM ATTENDANCE WHERE ATTENDANCEID = ?;";
     private final static String SQL_CREATE = "INSERT INTO ATTENDANCE(STUDENTID , COURSEID ,  DATE) VALUES(? , ? , ?);";
-    private final static String SQL_REPORT_BY_STUDENTID = "SELECT E.COURSEID , COUNT(DATE) AS 'PRESENTCOUNT' " +
+    private final static String SQL_REPORT_BY_STUDENTID = "SELECT E.COURSEID ,C.COURSETITLE, COUNT(DATE) AS 'ATTENDANCECOUNT' "
+            +
             "FROM ENROLLMENT E LEFT JOIN ATTENDANCE A " +
             "ON E.STUDENTID = A.STUDENTID AND E.COURSEID = A.COURSEID " +
+            "JOIN COURSE C ON E.COURSEID=C.COURSEID " +
             "WHERE E.STUDENTID = ? " +
             "GROUP BY E.COURSEID ;";
     private final static String SQL_FETCH_DATES_BY_STUDENTID_COURSEID = "SELECT DATE FROM ATTENDANCE WHERE STUDENTID = ? AND COURSEID = ? ;";
@@ -70,7 +72,7 @@ public class AttendanceRepositoryImpl implements AttendanceRepository {
     }
 
     @Override
-    public List<Map<String, Integer>> fetchReportForStudentId(Integer studentId) throws ResourceNotFoundException {
+    public List<Map<String, Object>> fetchReportForStudentId(Integer studentId) throws ResourceNotFoundException {
         try {
             return jdbcTemplate.query(SQL_REPORT_BY_STUDENTID, attendanceByCourseIdRowMapper,
                     new Object[] { studentId });
@@ -98,10 +100,11 @@ public class AttendanceRepositoryImpl implements AttendanceRepository {
                 rs.getDate("DATE"));
     });
 
-    private RowMapper<Map<String, Integer>> attendanceByCourseIdRowMapper = ((rs, rowNum) -> {
-        Map<String, Integer> map = new HashMap<>();
-        map.put("couseId", rs.getInt("COURSEID"));
-        map.put("presentCount", rs.getInt("PRESENTCOUNT"));
+    private RowMapper<Map<String, Object>> attendanceByCourseIdRowMapper = ((rs, rowNum) -> {
+        Map<String, Object> map = new HashMap<>();
+        map.put("courseId", rs.getInt("COURSEID"));
+        map.put("courseTitle", rs.getString("COURSETITLE"));
+        map.put("attendanceCount", rs.getInt("ATTENDANCECOUNT"));
         return map;
     });
 

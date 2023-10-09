@@ -34,7 +34,7 @@ public class TraditionalAttendanceServiceImpl implements AttendanceService {
     }
 
     @Override
-    public List<Map<String, Integer>> fetchAttendanceRecordByStudentId(Map<String, Object> studentData) {
+    public List<Map<String, Object>> fetchAttendanceRecordByStudentId(Map<String, Object> studentData) {
         int studentId = (Integer) studentData.get("studentId");
         return attendanceRepository.fetchReportForStudentId((Integer) studentId);
     }

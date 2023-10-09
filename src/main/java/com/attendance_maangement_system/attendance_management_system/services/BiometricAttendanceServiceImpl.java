@@ -28,7 +28,7 @@ public class BiometricAttendanceServiceImpl implements AttendanceService {
     }
 
     @Override
-    public List<Map<String, Integer>> fetchAttendanceRecordByStudentId(Map<String, Object> studentData) {
+    public List<Map<String, Object>> fetchAttendanceRecordByStudentId(Map<String, Object> studentData) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'fetchAttendanceRecordByStudentId'");
     }

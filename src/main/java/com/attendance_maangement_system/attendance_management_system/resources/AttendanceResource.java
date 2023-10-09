@@ -78,8 +78,8 @@ public class AttendanceResource {
         Map<String, Object> returnObject = new HashMap<>();
         try {
             Map<String, Object> studentData = (Map<String, Object>) map.get("studentData");
-            List<Map<String, Integer>> dateList = attendanceService.fetchAttendanceRecordByStudentId(studentData);
-            returnObject.put("data", dateList);
+            List<Map<String, Object>> attendanceData = attendanceService.fetchAttendanceRecordByStudentId(studentData);
+            returnObject.put("data", attendanceData);
             return new ResponseEntity<>(returnObject, HttpStatus.OK);
         } catch (Exception e) {
             String errorMessage = e.getMessage();

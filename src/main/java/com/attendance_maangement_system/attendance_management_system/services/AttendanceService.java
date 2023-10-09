@@ -9,14 +9,14 @@ import com.attendance_maangement_system.attendance_management_system.exceptions.
 import com.attendance_maangement_system.attendance_management_system.exceptions.ResourceNotFoundException;
 
 public interface AttendanceService {
-    Attendance fetchAttendance(Object attendanceId) throws ResourceNotFoundException;
+        Attendance fetchAttendance(Object attendanceId) throws ResourceNotFoundException;
 
-    Attendance addAttendance(Map<String, Object> studentData, Integer courseId, Date date)
-            throws InvalidRequestException;
+        Attendance addAttendance(Map<String, Object> studentData, Integer courseId, Date date)
+                        throws InvalidRequestException;
 
-    List<Map<String, Integer>> fetchAttendanceRecordByStudentId(Map<String, Object> studentData)
-            throws ResourceNotFoundException;
+        List<Map<String, Object>> fetchAttendanceRecordByStudentId(Map<String, Object> studentData)
+                        throws ResourceNotFoundException;
 
-    List<Date> fetchAttendanceRecordByCourseId(Map<String, Object> studentData, Integer courseId)
-            throws ResourceNotFoundException;
+        List<Date> fetchAttendanceRecordByCourseId(Map<String, Object> studentData, Integer courseId)
+                        throws ResourceNotFoundException;
 }
