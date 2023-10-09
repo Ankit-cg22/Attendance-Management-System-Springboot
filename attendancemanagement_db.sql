@@ -9,8 +9,8 @@ create table user(
 
 create table parent(
 	parentid int primary key auto_increment ,
-	childid int , 
-	userid int unique,
+	childid int unique, 
+	userid int ,
 	foreign key (childid) references student(studentid) on delete set null ,
 	foreign key (userid) references user(userid) on delete cascade 
 );
@@ -23,7 +23,7 @@ create table student(
 
 create table course (
 	courseid int primary key auto_increment ,
-	coursetitle varchar(255) 
+	coursetitle varchar(255) not null
 );
 
 create table enrollment (
