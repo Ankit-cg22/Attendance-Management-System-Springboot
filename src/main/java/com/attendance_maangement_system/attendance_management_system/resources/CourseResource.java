@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.attendance_maangement_system.attendance_management_system.Constants;
 import com.attendance_maangement_system.attendance_management_system.domain.Course;
+import com.attendance_maangement_system.attendance_management_system.domain.Student;
 import com.attendance_maangement_system.attendance_management_system.services.CourseService;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -140,8 +141,8 @@ public class CourseResource {
             @PathVariable("courseId") Integer courseId) {
         Map<String, Object> returnObject = new HashMap<>();
         try {
-            List<Integer> studentIdList = courseService.fetchEnrolledStudents(courseId);
-            returnObject.put("data", studentIdList);
+            List<Student> studentList = courseService.fetchEnrolledStudents(courseId);
+            returnObject.put("data", studentList);
             return new ResponseEntity<>(returnObject, HttpStatus.OK);
         } catch (Exception e) {
             String errorMessage = e.getMessage();
@@ -150,4 +151,18 @@ public class CourseResource {
         }
     }
 
+    @GetMapping("/notEnrolledStudents/{courseId}")
+    public ResponseEntity<Map<String, Object>> fetchNotEnrolledStudents(HttpServletRequest request,
+            @PathVariable("courseId") Integer courseId) {
+        Map<String, Object> returnObject = new HashMap<>();
+        try {
+            List<Student> studentList = courseService.fetchNotEnrolledStudents(courseId);
+            returnObject.put("data", studentList);
+            return new ResponseEntity<>(returnObject, HttpStatus.OK);
+        } catch (Exception e) {
+            String errorMessage = e.getMessage();
+            returnObject.put("error", errorMessage);
+            return new ResponseEntity<>(returnObject, HttpStatus.NOT_FOUND);
+        }
+    }
 }

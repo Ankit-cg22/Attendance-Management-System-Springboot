@@ -71,7 +71,7 @@ public class EnrollmentResource {
         }
     }
 
-    @DeleteMapping("/evictStudent")
+    @PostMapping("/evictStudent")
     public ResponseEntity<Map<String, Object>> evictStudent(HttpServletRequest request,
             @RequestBody Map<String, Object> map) {
 

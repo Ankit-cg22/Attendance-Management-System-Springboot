@@ -12,6 +12,7 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import com.attendance_maangement_system.attendance_management_system.domain.Course;
+import com.attendance_maangement_system.attendance_management_system.domain.Student;
 import com.attendance_maangement_system.attendance_management_system.exceptions.InvalidRequestException;
 import com.attendance_maangement_system.attendance_management_system.exceptions.ResourceNotFoundException;
 
@@ -37,7 +38,10 @@ public class CourseRepositoryImpl implements CourseRepository {
     private static final String SQL_UPDATE = "UPDATE COURSE SET COURSETITLE = ? WHERE COURSEID = ?;";
 
     // Fetch enrolled students
-    private static final String SQL_FIND_ENROLLED_STUDENTS = "SELECT DISTINCT STUDENTID FROM ENROLLMENT WHERE COURSEID=?;";
+    private static final String SQL_FIND_ENROLLED_STUDENTS = "SELECT S.STUDENTID , U.* , E.COURSEID FROM STUDENT S JOIN ENROLLMENT E ON S.STUDENTID = E.STUDENTID AND E.COURSEID=? JOIN USER U ON S.USERID = U.USERID;";
+
+    // Fetch not enrolled students
+    private static final String SQL_FIND_NOT_ENROLLED_STUDENTS = "SELECT S.STUDENTID , U.* , E.COURSEID FROM STUDENT S LEFT JOIN ENROLLMENT E ON S.STUDENTID = E.STUDENTID AND E.COURSEID=? JOIN USER U ON S.USERID = U.USERID  WHERE COURSEID IS NULL;";
 
     @Override
     public List<Course> fetchAll() throws RuntimeException {
@@ -95,9 +99,18 @@ public class CourseRepositoryImpl implements CourseRepository {
     }
 
     @Override
-    public List<Integer> findEnrolledStudents(Integer courseId) {
+    public List<Student> findEnrolledStudents(Integer courseId) {
         try {
-            return jdbcTemplate.query(SQL_FIND_ENROLLED_STUDENTS, integerRowMapper, new Object[] { courseId });
+            return jdbcTemplate.query(SQL_FIND_ENROLLED_STUDENTS, studentRowMapper, new Object[] { courseId });
+        } catch (Exception e) {
+            throw new ResourceNotFoundException("Data unavailable.");
+        }
+    }
+
+    @Override
+    public List<Student> findNotEnrolledStudents(Integer courseId) {
+        try {
+            return jdbcTemplate.query(SQL_FIND_NOT_ENROLLED_STUDENTS, studentRowMapper, new Object[] { courseId });
         } catch (Exception e) {
             throw new ResourceNotFoundException("Data unavailable.");
         }
@@ -109,7 +122,13 @@ public class CourseRepositoryImpl implements CourseRepository {
                 rs.getString("courseTitle"));
     });
 
-    private RowMapper<Integer> integerRowMapper = ((rs, rowNum) -> {
-        return rs.getInt("STUDENTID");
+    private RowMapper<Student> studentRowMapper = ((rs, rowNum) -> {
+        return new Student(
+                rs.getInt("USERID"),
+                rs.getString("FIRSTNAME"),
+                rs.getString("LASTNAME"),
+                rs.getString("EMAIL"),
+                rs.getString("ROLE"),
+                rs.getInt("STUDENTID"));
     });
 }
