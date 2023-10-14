@@ -58,7 +58,7 @@ public class ParentRepositoryImpl implements ParentRepository {
             return jdbcTemplate.queryForObject(SQL_FETCH_PARENTID_FOR_USERID, parentIdRowMapper,
                     new Object[] { userId });
         } catch (Exception e) {
-            throw new ResourceNotFoundException("No such student.");
+            throw new ResourceNotFoundException("No such parent.");
         }
     }
 

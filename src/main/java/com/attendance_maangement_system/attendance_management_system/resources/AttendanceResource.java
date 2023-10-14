@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.sql.Date;
+import java.text.SimpleDateFormat;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -43,10 +44,18 @@ public class AttendanceResource {
             return new ResponseEntity<Map<String, Object>>(returnObject, HttpStatus.BAD_REQUEST);
         }
         try {
+            // if a date is passed in body , then we mark present for that day , otherwise
+            // we mark for current day
             Date date = new java.sql.Date(System.currentTimeMillis());
+            if (map.containsKey("date")) {
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                java.util.Date utilDate = dateFormat.parse((String) map.get("date"));
+                date = new java.sql.Date(utilDate.getTime());
+            }
             Map<String, Object> studentData = (Map<String, Object>) map.get("studentData");
             int courseId = (Integer) map.get("courseId");
-            Attendance newAttendance = attendanceService.addAttendance(studentData, courseId, date);
+            Attendance newAttendance = attendanceService.addAttendance(studentData,
+                    courseId, date);
             returnObject.put("data", newAttendance);
             return new ResponseEntity<>(returnObject, HttpStatus.OK);
         } catch (Exception e) {

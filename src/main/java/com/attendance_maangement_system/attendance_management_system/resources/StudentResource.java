@@ -153,8 +153,8 @@ public class StudentResource {
             @PathVariable("studentId") Integer studentId) {
         Map<String, Object> returnObject = new HashMap<>();
         try {
-            List<Integer> courseIdList = studentService.fetchEnrolledCourses(studentId);
-            returnObject.put("data", courseIdList);
+            List<Map<String, Object>> courseList = studentService.fetchEnrolledCourses(studentId);
+            returnObject.put("data", courseList);
             return new ResponseEntity<>(returnObject, HttpStatus.OK);
         } catch (Exception e) {
             String errorMessage = e.getMessage();

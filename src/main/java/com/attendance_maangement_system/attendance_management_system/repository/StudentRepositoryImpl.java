@@ -2,7 +2,9 @@ package com.attendance_maangement_system.attendance_management_system.repository
 
 import java.sql.Statement;
 import java.sql.PreparedStatement;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -35,7 +37,7 @@ public class StudentRepositoryImpl implements StudentRepository {
     // LASTNAME = ? , EMAIL = ? WHERE STUDENTID = ?";
 
     // fetch enrolled courses
-    private static final String SQL_FETCH_ENROLLED_COURSES = "SELECT DISTINCT COURSEID FROM ENROLLMENT WHERE STUDENTID = ?;";
+    private static final String SQL_FETCH_ENROLLED_COURSES = "SELECT DISTINCT C.COURSEID , C.COURSETITLE FROM ENROLLMENT E JOIN COURSE C USING (COURSEID) WHERE STUDENTID = ?;";
 
     // fetch studentid for particular userid
     private static final String SQL_FETCH_STUDENTID_FOR_USERID = "SELECT STUDENTID FROM STUDENT WHERE USERID = ?;";
@@ -90,9 +92,9 @@ public class StudentRepositoryImpl implements StudentRepository {
     }
 
     @Override
-    public List<Integer> findEnrolledCourses(Integer studentId) throws ResourceNotFoundException {
+    public List<Map<String, Object>> findEnrolledCourses(Integer studentId) throws ResourceNotFoundException {
         try {
-            return jdbcTemplate.query(SQL_FETCH_ENROLLED_COURSES, integerRowMapper, new Object[] { studentId });
+            return jdbcTemplate.query(SQL_FETCH_ENROLLED_COURSES, courseRowMapper, new Object[] { studentId });
         } catch (Exception e) {
             throw new ResourceNotFoundException("Data unavailable");
         }
@@ -118,8 +120,11 @@ public class StudentRepositoryImpl implements StudentRepository {
                 rs.getInt("STUDENTID"));
     });
 
-    private RowMapper<Integer> integerRowMapper = ((rs, rowNum) -> {
-        return rs.getInt("COURSEID");
+    private RowMapper<Map<String, Object>> courseRowMapper = ((rs, rowNum) -> {
+        Map<String, Object> map = new HashMap();
+        map.put("courseId", rs.getInt("COURSEID"));
+        map.put("courseTitle", rs.getString("COURSETITLE"));
+        return map;
     });
 
     private RowMapper<Integer> studentIdRowMapper = ((rs, rowNum) -> {

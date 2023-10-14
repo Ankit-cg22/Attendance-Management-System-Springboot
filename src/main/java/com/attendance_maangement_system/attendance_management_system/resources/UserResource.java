@@ -7,6 +7,7 @@ import java.util.Map;
 import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -42,92 +43,99 @@ public class UserResource {
 
     @PostMapping("/register")
     public ResponseEntity<Map<String, Object>> registerUser(@RequestBody Map<String, Object> userMap) {
-        String firstName = (String) userMap.get("firstName");
-        String lastName = (String) userMap.get("lastName");
-        String email = (String) userMap.get("email");
-        String password = (String) userMap.get("password");
-        String role = (String) userMap.get("role");
-        Integer childId = (Integer) userMap.get("childId");
-        User user = userService.registerUser(firstName, lastName, email, password, role);
-
         Map<String, Object> returnObject = new HashMap<>();
+        try {
+            String firstName = (String) userMap.get("firstName");
+            String lastName = (String) userMap.get("lastName");
+            String email = (String) userMap.get("email");
+            String password = (String) userMap.get("password");
+            String role = (String) userMap.get("role");
+            Integer childId = (Integer) userMap.get("childId");
+            User user = userService.registerUser(firstName, lastName, email, password, role);
+            if (role.equals("student")) {
+                Student newStudent = studentService.addStudent(user.getUserId());
+                returnObject.put("studentId", newStudent.getStudentId());
+                returnObject.put("token", generateJWTToken(user, (Student) returnObject.get("student")));
+            } else if (role.equals("parent")) {
+                System.out.println(childId);
+                System.out.println(user.getUserId());
+                Parent newParent = parentService.addParent(user.getUserId(), childId);
+                returnObject.put("parentId", newParent.getParentId());
+                returnObject.put("childId", newParent.getChildId());
+                returnObject.put("token", generateJWTToken(user, (Parent) returnObject.get("parent")));
+            }
+            returnObject.put("user", user);
 
-        if (role.equals("student")) {
-            Student newStudent = studentService.addStudent(user.getUserId());
-            returnObject.put("studentId", newStudent.getStudentId());
-            returnObject.put("token", generateJWTToken(user, (Student) returnObject.get("student")));
-        } else if (role.equals("parent")) {
-            System.out.println(childId);
-            System.out.println(user.getUserId());
-            Parent newParent = parentService.addParent(user.getUserId(), childId);
-            returnObject.put("parentId", newParent.getParentId());
-            returnObject.put("childId", newParent.getChildId());
-            returnObject.put("token", generateJWTToken(user, (Parent) returnObject.get("parent")));
+            return new ResponseEntity<>(returnObject, HttpStatus.OK);
+        } catch (Exception e) {
+            returnObject.put("error", e.getMessage());
+            return new ResponseEntity<Map<String, Object>>(returnObject, HttpStatus.BAD_REQUEST);
         }
-
-        Map<String, Object> user1 = new HashMap<>();
-        user1.put("userId", user.getUserId());
-        user1.put("firstName", user.getFirstName());
-        user1.put("lastName", user.getLastName());
-        user1.put("email", user.getEmail());
-        user1.put("role", user.getRole());
-        returnObject.put("user", user1);
-
-        return new ResponseEntity<>(returnObject, HttpStatus.OK);
     }
 
     @PostMapping("/login")
     public ResponseEntity<Map<String, Object>> loginUser(@RequestBody Map<String, Object> userMap) {
-        String email = (String) userMap.get("email");
-        String password = (String) userMap.get("password");
-
-        // using the received data we check if provided data represents a valid user
-        User user = userService.validateUser(email, password);
         Map<String, Object> returnObject = new HashMap<>();
-        returnObject.put("user", user);
-        Object obj = null;
 
-        if (user.getRole().equals("student")) {
-            Integer studentId = studentService.getStudentIdFromUserId(user.getUserId());
-            returnObject.put("studentId", studentId);
-            obj = studentService.fetchStudentById(studentId);
+        try {
+            String email = (String) userMap.get("email");
+            String password = (String) userMap.get("password");
+
+            // using the received data we check if provided data represents a valid user
+            User user = userService.validateUser(email, password);
+            returnObject.put("user", user);
+            Object obj = null;
+
+            if (user.getRole().equals("student")) {
+                Integer studentId = studentService.getStudentIdFromUserId(user.getUserId());
+                returnObject.put("studentId", studentId);
+                obj = studentService.fetchStudentById(studentId);
+            }
+            if (user.getRole().equals("parent")) {
+                Integer parentId = parentService.getParentIdFromUserId(user.getUserId());
+                returnObject.put("parentId", parentId);
+                obj = parentService.fetchParentById(parentId);
+                returnObject.put("childId", ((Parent) obj).getChildId());
+            }
+            returnObject.put("token", generateJWTToken(user, obj));
+            return new ResponseEntity<>(returnObject, HttpStatus.OK);
+        } catch (Exception e) {
+            returnObject.put("error", e.getMessage());
+            return new ResponseEntity<Map<String, Object>>(returnObject, HttpStatus.BAD_REQUEST);
         }
-        if (user.getRole().equals("parent")) {
-            Integer parentId = parentService.getParentIdFromUserId(user.getUserId());
-            returnObject.put("parentId", parentId);
-            obj = parentService.fetchParentById(parentId);
-            returnObject.put("childId", ((Parent) obj).getChildId());
-        }
-        returnObject.put("token", generateJWTToken(user, obj));
-        return new ResponseEntity<>(returnObject, HttpStatus.OK);
     }
 
     @PostMapping("/update/{userId}")
     public ResponseEntity<Map<String, Object>> updateUser(@PathVariable("userId") Integer userId,
             @RequestBody Map<String, Object> map) {
         Map<String, Object> returnObject = new HashMap<>();
-        String token = (String) map.get("token");
-        Map<String, Object> tokenMap = Constants.validateToken(token);
-        if (tokenMap.get("valid") == (Boolean) false) {
-            returnObject.put("error", "invalid token");
-            return new ResponseEntity<>(returnObject, HttpStatus.BAD_REQUEST);
-        } else if (tokenMap.get("userId") != userId) {
-            returnObject.put("error", "unauthorized access");
-            return new ResponseEntity<>(returnObject, HttpStatus.BAD_REQUEST);
+        try {
+            String token = (String) map.get("token");
+            Map<String, Object> tokenMap = Constants.validateToken(token);
+            if (tokenMap.get("valid") == (Boolean) false) {
+                returnObject.put("error", "invalid token");
+                return new ResponseEntity<>(returnObject, HttpStatus.BAD_REQUEST);
+            } else if (tokenMap.get("userId") != userId) {
+                returnObject.put("error", "unauthorized access");
+                return new ResponseEntity<>(returnObject, HttpStatus.BAD_REQUEST);
+            }
+            String firstName = (String) map.get("firstName");
+            String lastName = (String) map.get("lastName");
+            String email = (String) map.get("email");
+            String password = (String) map.get("password");
+            String role = (String) tokenMap.get("role");
+
+            User user = new User(userId, firstName, lastName, email, password, role);
+            User updatedUser = userService.updateUser(userId, user);
+
+            returnObject.put("success", true);
+            returnObject.put("user", updatedUser);
+
+            return new ResponseEntity<>(returnObject, HttpStatus.OK);
+        } catch (Exception e) {
+            returnObject.put("error", e.getMessage());
+            return new ResponseEntity<Map<String, Object>>(returnObject, HttpStatus.BAD_REQUEST);
         }
-        String firstName = (String) map.get("firstName");
-        String lastName = (String) map.get("lastName");
-        String email = (String) map.get("email");
-        String password = (String) map.get("password");
-        String role = (String) tokenMap.get("role");
-
-        User user = new User(userId, firstName, lastName, email, password, role);
-        User updatedUser = userService.updateUser(userId, user);
-
-        returnObject.put("success", true);
-        returnObject.put("user", updatedUser);
-
-        return new ResponseEntity<>(returnObject, HttpStatus.OK);
     }
 
     // @GetMapping("/adminRequests")

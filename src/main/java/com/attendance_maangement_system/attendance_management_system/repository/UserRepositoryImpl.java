@@ -16,6 +16,7 @@ import org.springframework.stereotype.Repository;
 
 import com.attendance_maangement_system.attendance_management_system.domain.User;
 import com.attendance_maangement_system.attendance_management_system.exceptions.AuthException;
+import com.attendance_maangement_system.attendance_management_system.exceptions.InvalidRequestException;
 import com.attendance_maangement_system.attendance_management_system.exceptions.ResourceNotFoundException;
 
 @Repository
@@ -57,7 +58,10 @@ public class UserRepositoryImpl implements UserRepository {
             else
                 return 0;
         } catch (Exception e) {
-            throw new AuthException("Invalid details , Failed to create account.");
+            if (e.getMessage().contains("Duplicate"))
+                throw new AuthException("Email Id already exists");
+            else
+                throw new AuthException("Invalid details , Failed to create account.");
         }
     }
 
@@ -74,7 +78,7 @@ public class UserRepositoryImpl implements UserRepository {
             }
 
             // password matched so return user
-            return user;
+            return findByUserId(user.getUserId());
 
         } catch (EmptyResultDataAccessException e) {
             throw new AuthException("Invalid email/password.");
@@ -88,6 +92,9 @@ public class UserRepositoryImpl implements UserRepository {
             jdbcTemplate.update(SQL_UPDATE, new Object[] { user.getFirstName(), user.getLastName(), user.getEmail(),
                     hashedPassword, userId });
         } catch (Exception e) {
+            if (e.getMessage().contains("Duplicate"))
+                throw new InvalidRequestException("Email Id already exists");
+
             throw new ResourceNotFoundException("User does not exist.");
         }
     }

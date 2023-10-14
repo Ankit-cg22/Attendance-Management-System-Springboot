@@ -1,6 +1,7 @@
 package com.attendance_maangement_system.attendance_management_system.repository;
 
 import java.util.List;
+import java.util.Map;
 
 import com.attendance_maangement_system.attendance_management_system.domain.Student;
 import com.attendance_maangement_system.attendance_management_system.exceptions.InvalidRequestException;
@@ -17,7 +18,7 @@ public interface StudentRepository {
 
     // void update(Integer studentId) throws InvalidRequestException;
 
-    List<Integer> findEnrolledCourses(Integer studentId) throws ResourceNotFoundException;
+    List<Map<String, Object>> findEnrolledCourses(Integer studentId) throws ResourceNotFoundException;
 
     Integer getStudentIdFromUserId(Integer userId) throws ResourceNotFoundException;
 }

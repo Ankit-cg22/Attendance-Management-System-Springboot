@@ -5,6 +5,7 @@ import com.attendance_maangement_system.attendance_management_system.exceptions.
 import com.attendance_maangement_system.attendance_management_system.exceptions.ResourceNotFoundException;
 
 import java.util.List;
+import java.util.Map;
 
 public interface StudentService {
     List<Student> fetchAllStudents() throws RuntimeException;
@@ -18,7 +19,7 @@ public interface StudentService {
     // void updateStudent(Integer studentId, Student student) throws
     // ResourceNotFoundException;
 
-    List<Integer> fetchEnrolledCourses(Integer studentId) throws ResourceNotFoundException;
+    List<Map<String, Object>> fetchEnrolledCourses(Integer studentId) throws ResourceNotFoundException;
 
     Integer getStudentIdFromUserId(Integer userId) throws ResourceNotFoundException;
 }

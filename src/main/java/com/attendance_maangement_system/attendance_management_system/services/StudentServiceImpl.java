@@ -1,6 +1,7 @@
 package com.attendance_maangement_system.attendance_management_system.services;
 
 import java.util.List;
+import java.util.Map;
 
 import org.apache.catalina.util.ResourceSet;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,7 +67,7 @@ public class StudentServiceImpl implements StudentService {
     // }
 
     @Override
-    public List<Integer> fetchEnrolledCourses(Integer studentId) throws ResourceNotFoundException {
+    public List<Map<String, Object>> fetchEnrolledCourses(Integer studentId) throws ResourceNotFoundException {
         try {
             return studentRepository.findEnrolledCourses(studentId);
         } catch (Exception e) {
