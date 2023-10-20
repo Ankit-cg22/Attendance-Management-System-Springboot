@@ -16,7 +16,7 @@ public class UserServiceImpl implements UserService {
     @Autowired
     UserRepository userRepository;
 
-    // @Async
+    @Async
     @Override
     public User registerUser(String firstName, String lastName, String email, String password, String role)
             throws AuthException {
@@ -51,6 +51,15 @@ public class UserServiceImpl implements UserService {
     public User updateUser(Integer userId, User user) throws ResourceNotFoundException {
         try {
             userRepository.updateUser(userId, user);
+            return userRepository.findByUserId(userId);
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+
+    @Override
+    public User getUser(Integer userId) {
+        try {
             return userRepository.findByUserId(userId);
         } catch (Exception e) {
             throw e;

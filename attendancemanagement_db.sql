@@ -44,3 +44,10 @@ create table attendance(
 	UNIQUE(studentid , courseid , date),
 	foreign key ( courseid , studentid) references enrollment(courseid , studentid) on delete cascade
 );
+
+create table refresh_token (
+	refreshToken varchar(255) primary key ,
+	expiry datetime , 
+	userid int unique,
+	foreign key (userid) references user(userid)
+);

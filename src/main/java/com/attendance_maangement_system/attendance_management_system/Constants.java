@@ -9,6 +9,8 @@ import javax.crypto.spec.SecretKeySpec;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.impl.crypto.DefaultJwtSignatureValidator;
 import io.jsonwebtoken.security.Keys;
@@ -19,6 +21,8 @@ public class Constants {
     public static final byte[] API_SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256).getEncoded();
     // token validity time = 30 min , we store that in millisecond
     public static final long API_TOKEN_VALIDITY = 30 * 60 * 1000;
+    // refresh token is valid for a day
+    public static final long REFRESH_TOKEN_VALIDITY = 24 * 60 * 60 * 1000;
 
     public static Map<String, Object> validateToken(String token) {
 
@@ -31,8 +35,24 @@ public class Constants {
 
         SecretKeySpec secretKeySpec = new SecretKeySpec(Constants.API_SECRET_KEY, sa.getJcaName());
         DefaultJwtSignatureValidator validator = new DefaultJwtSignatureValidator(sa, secretKeySpec);
-
         if (!validator.isValid(tokenWithoutSignature, signature)) {
+            map.put("valid", false);
+            return map;
+        }
+        try {
+            Claims claims = Jwts.parser()
+                    .setSigningKey(API_SECRET_KEY)
+                    .parseClaimsJws(token)
+                    .getBody();
+
+            long expirationTime = claims.getExpiration().getTime(); // in milliseconds
+            long currentTime = System.currentTimeMillis(); // current time in milliseconds
+            if (expirationTime < currentTime) {
+                // jwt has expired
+                map.put("valid", false);
+                return map;
+            }
+        } catch (Exception e) {
             map.put("valid", false);
             return map;
         }

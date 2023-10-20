@@ -12,4 +12,6 @@ public interface UserService {
 
     User updateUser(Integer userId, User user) throws ResourceNotFoundException;
 
+    User getUser(Integer userId);
+
 }

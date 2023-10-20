@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.coyote.Response;
+import org.apache.tomcat.util.bcel.Const;
+import org.apache.tomcat.util.bcel.classfile.Constant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -19,9 +21,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.attendance_maangement_system.attendance_management_system.Constants;
 import com.attendance_maangement_system.attendance_management_system.domain.Parent;
+import com.attendance_maangement_system.attendance_management_system.domain.RefreshToken;
 import com.attendance_maangement_system.attendance_management_system.domain.Student;
 import com.attendance_maangement_system.attendance_management_system.domain.User;
 import com.attendance_maangement_system.attendance_management_system.services.ParentService;
+import com.attendance_maangement_system.attendance_management_system.services.RefreshTokenService;
 import com.attendance_maangement_system.attendance_management_system.services.StudentService;
 import com.attendance_maangement_system.attendance_management_system.services.UserService;
 
@@ -40,6 +44,9 @@ public class UserResource {
 
     @Autowired
     ParentService parentService;
+
+    @Autowired
+    RefreshTokenService refreshTokenService;
 
     @PostMapping("/register")
     public ResponseEntity<Map<String, Object>> registerUser(@RequestBody Map<String, Object> userMap) {
@@ -98,6 +105,10 @@ public class UserResource {
                 returnObject.put("childId", ((Parent) obj).getChildId());
             }
             returnObject.put("token", generateJWTToken(user, obj));
+
+            RefreshToken refreshToken = refreshTokenService.createRefreshToken(user.getUserId());
+            returnObject.put("refreshToken", refreshToken.getRefreshToken());
+
             return new ResponseEntity<>(returnObject, HttpStatus.OK);
         } catch (Exception e) {
             returnObject.put("error", e.getMessage());
@@ -140,6 +151,36 @@ public class UserResource {
 
     // @GetMapping("/adminRequests")
 
+    @PostMapping("/refreshToken")
+    public ResponseEntity<Map<String, Object>> refreshJWTToken(@RequestBody Map<String, Object> map) {
+        Map<String, Object> returnObject = new HashMap();
+        String refreshToken = (String) map.get("refreshToken");
+        try {
+            RefreshToken refreshTokenObj = refreshTokenService.verifyRefreshToken(refreshToken);
+            User user = userService.getUser(refreshTokenObj.getUserId());
+            returnObject.put("user", user);
+            Object obj = null;
+
+            if (user.getRole().equals("student")) {
+                Integer studentId = studentService.getStudentIdFromUserId(user.getUserId());
+                returnObject.put("studentId", studentId);
+                obj = studentService.fetchStudentById(studentId);
+            }
+            if (user.getRole().equals("parent")) {
+                Integer parentId = parentService.getParentIdFromUserId(user.getUserId());
+                returnObject.put("parentId", parentId);
+                obj = parentService.fetchParentById(parentId);
+                returnObject.put("childId", ((Parent) obj).getChildId());
+            }
+            returnObject.put("token", generateJWTToken(user, obj));
+            returnObject.put("refreshToken", refreshTokenObj.getRefreshToken());
+            return new ResponseEntity<Map<String, Object>>(returnObject, HttpStatus.OK);
+        } catch (Exception e) {
+            returnObject.put("error", e.getMessage());
+            return new ResponseEntity<Map<String, Object>>(returnObject, HttpStatus.BAD_REQUEST);
+        }
+    }
+
     private String generateJWTToken(User user, Object obj) {
         long timestamp = System.currentTimeMillis();
         // we use current time to set the expirty of the token
@@ -157,7 +198,7 @@ public class UserResource {
         String token = Jwts.builder()
                 .signWith(Keys.hmacShaKeyFor(Constants.API_SECRET_KEY), SignatureAlgorithm.HS256)
                 .setIssuedAt(new Date(timestamp))
-                .setExpiration(new Date(timestamp + 30 * 60 * 1000))
+                .setExpiration(new Date(timestamp + Constants.API_TOKEN_VALIDITY))
                 .claim("userId", user.getUserId())
                 .claim("email", user.getEmail())
                 .claim("firstName", user.getFirstName())
