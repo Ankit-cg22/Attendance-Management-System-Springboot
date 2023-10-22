@@ -3,6 +3,7 @@ package com.attendance_maangement_system.attendance_management_system.resources;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 import org.apache.coyote.Response;
 import org.apache.tomcat.util.bcel.Const;
@@ -58,7 +59,8 @@ public class UserResource {
             String password = (String) userMap.get("password");
             String role = (String) userMap.get("role");
             Integer childId = (Integer) userMap.get("childId");
-            User user = userService.registerUser(firstName, lastName, email, password, role);
+            CompletableFuture<User> user1 = userService.registerUser(firstName, lastName, email, password, role);
+            User user = user1.join();
             if (role.equals("student")) {
                 Student newStudent = studentService.addStudent(user.getUserId());
                 returnObject.put("studentId", newStudent.getStudentId());

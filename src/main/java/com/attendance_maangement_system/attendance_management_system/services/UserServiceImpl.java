@@ -1,5 +1,6 @@
 package com.attendance_maangement_system.attendance_management_system.services;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.regex.Pattern;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,23 +19,41 @@ public class UserServiceImpl implements UserService {
 
     @Async
     @Override
-    public User registerUser(String firstName, String lastName, String email, String password, String role)
+    public CompletableFuture<User> registerUser(String firstName, String lastName, String email, String password,
+            String role)
             throws AuthException {
+        long start = System.currentTimeMillis();
+        String threadName = Thread.currentThread().getName();
+
         Pattern pattern = Pattern.compile("^(.+)@(.+)$");
 
+        // System.out.println(threadName + " : long loop");
+        // for (int i = 0; i < 1000; i++) {
+        // // empty loop
+        // };
+
+        System.out.println(threadName + " : mail pattern check");
         if (email != null)
             email = email.toLowerCase();
         // convert email to lower case
 
+        System.out.println(threadName + " : mail duplicate check");
         if (!pattern.matcher(email).matches()) {
             throw new AuthException("Invalid email format");
         }
         // if email does not match email pattern , throw error
 
+        System.out.println(threadName + " : user creation");
         try {
             Integer userId = userRepository.create(firstName, lastName, email, password, role);
             System.out.println("THIS IS USER ID : " + userId);
-            return userRepository.findByUserId(userId);
+            User user = userRepository.findByUserId(userId);
+
+            long end = System.currentTimeMillis();
+            System.out.println("Thread: " + threadName);
+            System.out.println("Time taken : " + (end - start) + " milliseconds");
+
+            return CompletableFuture.completedFuture(user);
         } catch (Exception e) {
             throw e;
         }
