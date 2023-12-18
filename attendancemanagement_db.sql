@@ -49,5 +49,5 @@ create table refresh_token (
 	refreshToken varchar(255) primary key ,
 	expiry datetime , 
 	userid int unique,
-	foreign key (userid) references user(userid)
+	foreign key (userid) references user(userid) on delete cascade 
 );
